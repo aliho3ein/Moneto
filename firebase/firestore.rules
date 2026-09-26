@@ -1,0 +1,112 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+
+    // ---------- Benutzerprofile ----------
+    // Tipp: hier nur displayName/photoURL speichern, keine sensiblen Daten,
+    // da jeder eingeloggte Nutzer Profile lesen kann (für Namen des Partners).
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() <= 50;
+      allow delete: if signedIn() && request.auth.uid == uid;
+    }
+
+    // ---------- Gemeinsamer Account ----------
+    match /workspaces/{wsId} {
+      function isMember()   { return signedIn() && request.auth.uid in resource.data.members; }
+      function isOwner()    { return signedIn() && request.auth.uid == resource.data.ownerId; }
+      function changed()    { return request.resource.data.diff(resource.data).affectedKeys(); }
+      function newMembers() { return request.resource.data.members.toSet(); }
+      function oldMembers() { return resource.data.members.toSet(); }
+
+      // Für Subcollections: Mitgliedschaft über das Workspace-Dokument prüfen
+      function wsMember() {
+        return signedIn() && request.auth.uid in
+          get(/databases/$(database)/documents/workspaces/$(wsId)).data.members;
+      }
+
+      // FIX: Teilen nur möglich, wenn ein echter, langer Token gesetzt ist
+      function sharingEnabled() {
+        return 'shareToken' in resource.data
+          && resource.data.shareToken is string
+          && resource.data.shareToken.size() >= 20;
+      }
+
+      function isValidJoin() {
+        return signedIn()
+          && sharingEnabled()
+          && changed().hasOnly(['members', 'joinToken'])
+          && request.resource.data.joinToken == resource.data.shareToken
+          && newMembers() == oldMembers().union([request.auth.uid].toSet())
+          && newMembers().size() <= 10;
+      }
+
+      function isLeaving() {
+        return isMember() && !isOwner()
+          && changed().hasOnly(['members'])
+          && newMembers() == oldMembers().difference([request.auth.uid].toSet());
+      }
+
+      allow read: if isMember();
+
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.members == [request.auth.uid]
+        && request.resource.data.name is string;
+
+      allow update: if (isOwner()
+            && !changed().hasAny(['ownerId'])
+            && request.auth.uid in request.resource.data.members)  // Owner bleibt Mitglied
+        || (isMember() && changed().hasOnly(['name']))
+        || isValidJoin()
+        || isLeaving();
+
+      allow delete: if isOwner();
+
+      // ---------- Kategorien ----------
+      match /categories/{catId} {
+        function validCategory() {
+          let d = request.resource.data;
+          return d.keys().hasOnly(['name', 'icon', 'color', 'type', 'archived', 'order'])
+            && d.name is string && d.name.size() > 0 && d.name.size() <= 30
+            && d.type in ['expense', 'income']
+            && d.archived is bool;
+        }
+        allow read: if wsMember();
+        allow create, update: if wsMember() && validCategory();
+        allow delete: if wsMember();   // besser in der App nur archived: true setzen
+      }
+
+      // ---------- Einkäufe / Einnahmen ----------
+      match /items/{itemId} {
+        function validItem() {
+          let d = request.resource.data;
+          return d.keys().hasAll(['amount', 'type', 'categoryId', 'date', 'createdBy'])
+            && d.keys().hasOnly(['amount', 'type', 'categoryId', 'date', 'createdBy',
+                                 'note', 'articles', 'createdAt'])
+            && d.amount is int && d.amount > 0 && d.amount < 100000000   // Cent
+            && d.type in ['expense', 'income']
+            && d.categoryId is string
+            && d.date is timestamp
+            && (!('note' in d) || (d.note is string && d.note.size() <= 200))
+            && (!('articles' in d) || (d.articles is list && d.articles.size() <= 100));
+        }
+        allow read: if wsMember();
+        allow create: if wsMember() && validItem()
+          && request.resource.data.createdBy == request.auth.uid;
+        allow update: if wsMember() && validItem()
+          && request.resource.data.createdBy == resource.data.createdBy;  // Ersteller bleibt
+        allow delete: if wsMember();
+      }
+
+      // ---------- Daueraufträge (optional) ----------
+      match /recurring/{recId} {
+        allow read, write: if wsMember();
+      }
+    }
+  }
+}

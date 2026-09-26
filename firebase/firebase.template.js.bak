@@ -1,0 +1,150 @@
+// firebase.js
+// Google login + shared workspaces that other users can join with a share link.
+// Load this file in your page with: <script type="module" src="app.js"></script>
+// and in app.js: import { loginWithGoogle, ... } from "./firebase.js";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, doc, addDoc, getDoc, updateDoc, deleteDoc,
+  query, where, orderBy, onSnapshot, serverTimestamp, arrayUnion, arrayRemove
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// 1) PASTE YOUR OWN CONFIG HERE (Firebase console → Project settings → Your apps)
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+/* ---------------- LOGIN WITH GOOGLE ---------------- */
+
+export function loginWithGoogle() {
+  return signInWithPopup(auth, new GoogleAuthProvider());
+}
+
+export function logout() {
+  return signOut(auth);
+}
+
+// Calls cb(user) when someone logs in, cb(null) when they log out.
+export function watchUser(cb) {
+  return onAuthStateChanged(auth, cb);
+}
+
+function uid() {
+  if (!auth.currentUser) throw new Error("You must be logged in.");
+  return auth.currentUser.uid;
+}
+
+function makeToken() {
+  return crypto.randomUUID().replace(/-/g, "");
+}
+
+/* ---------------- SHARED WORKSPACES ----------------
+   A "workspace" is a shared database space. Everyone in its
+   `members` list can read and edit its data.                 */
+
+export async function createWorkspace(name) {
+  const ref = await addDoc(collection(db, "workspaces"), {
+    name,
+    ownerId: uid(),
+    members: [uid()],
+    shareToken: makeToken(),
+    createdAt: serverTimestamp()
+  });
+  return ref.id;
+}
+
+// Live list of every workspace the current user belongs to.
+export function watchMyWorkspaces(cb) {
+  const q = query(collection(db, "workspaces"), where("members", "array-contains", uid()));
+  return onSnapshot(q, snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
+}
+
+export async function renameWorkspace(workspaceId, name) {
+  await updateDoc(doc(db, "workspaces", workspaceId), { name });
+}
+
+export async function deleteWorkspace(workspaceId) {
+  await deleteDoc(doc(db, "workspaces", workspaceId));
+}
+
+/* ---------------- SHARE LINKS ---------------- */
+
+// Returns a link like https://my-app.web.app/?join=abc123&token=xyz
+export async function getShareLink(workspaceId) {
+  const snap = await getDoc(doc(db, "workspaces", workspaceId));
+  const { shareToken } = snap.data();
+  return `${location.origin}${location.pathname}?join=${workspaceId}&token=${shareToken}`;
+}
+
+// Owner only: makes the old link stop working.
+export async function resetShareLink(workspaceId) {
+  await updateDoc(doc(db, "workspaces", workspaceId), { shareToken: makeToken() });
+}
+
+export async function joinWorkspace(workspaceId, token) {
+  await updateDoc(doc(db, "workspaces", workspaceId), {
+    members: arrayUnion(uid()),
+    joinToken: token
+  });
+}
+
+// Call this right after the user logs in. If the page was opened
+// from a share link, it joins the workspace and returns its id.
+export async function handleJoinLinkIfPresent() {
+  const params = new URLSearchParams(location.search);
+  const id = params.get("join");
+  const token = params.get("token");
+  if (!id || !token) return null;
+  await joinWorkspace(id, token);
+  history.replaceState(null, "", location.pathname); // clean the URL
+  return id;
+}
+
+// Owner only: remove someone from the workspace.
+export async function removeMember(workspaceId, memberUid) {
+  await updateDoc(doc(db, "workspaces", workspaceId), { members: arrayRemove(memberUid) });
+}
+
+// A member (not the owner) leaves the workspace.
+export async function leaveWorkspace(workspaceId) {
+  await updateDoc(doc(db, "workspaces", workspaceId), { members: arrayRemove(uid()) });
+}
+
+/* ---------------- YOUR DATA (TABLES) ----------------
+   Each workspace has its own "items" collection (like a table).
+   Rename "items" to whatever fits your app, e.g. "tasks", "products". */
+
+export async function addItem(workspaceId, data) {
+  const ref = await addDoc(collection(db, "workspaces", workspaceId, "items"), {
+    ...data,
+    createdBy: uid(),
+    createdAt: serverTimestamp()
+  });
+  return ref.id;
+}
+
+// Live updates: when any member changes data, everyone sees it instantly.
+export function watchItems(workspaceId, cb) {
+  const q = query(collection(db, "workspaces", workspaceId, "items"), orderBy("createdAt"));
+  return onSnapshot(q, snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
+}
+
+export async function updateItem(workspaceId, itemId, data) {
+  await updateDoc(doc(db, "workspaces", workspaceId, "items", itemId), data);
+}
+
+export async function deleteItem(workspaceId, itemId) {
+  await deleteDoc(doc(db, "workspaces", workspaceId, "items", itemId));
+}

@@ -1,0 +1,592 @@
+import React, { useEffect, useState } from "react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronRight,
+  CircleUserRound,
+  LogOut,
+  Menu,
+  Pencil,
+  Plus,
+  Save,
+  Settings,
+  Trash2
+} from "lucide-react";
+import { loadState, resetDemo, saveState } from "./services/storage";
+import {
+  authErrorMessage,
+  signInWithGoogle,
+  signOutUser,
+  subscribeToAuth
+} from "./services/auth";
+import { ICONS, Icon } from "./icons";
+import { categoryTotal, fmt, formatDate } from "./format";
+import DonutChart from "./components/DonutChart";
+
+const COLOR_OPTIONS = [
+  "#f08ab7", "#7e8da3", "#b36bc9", "#8c5a9c",
+  "#d6c9c9", "#9dd7c8", "#7db8d9", "#ef8a7e"
+];
+
+function initials(name) {
+  return (name || "")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("") || "?";
+}
+
+function App() {
+  const [state, setState] = useState(loadState);
+  const [user, setUser] = useState(null);
+  // Firebase restores an existing session asynchronously - until it reports
+  // back we must not flash the login page at an already signed-in user.
+  const [authReady, setAuthReady] = useState(false);
+  const [signingIn, setSigningIn] = useState(false);
+  const [page, setPage] = useState("dashboard");
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loginError, setLoginError] = useState("");
+
+  useEffect(() => subscribeToAuth((nextUser) => {
+    setUser(nextUser);
+    setAuthReady(true);
+    if (nextUser) setLoginError("");
+  }), []);
+
+  const updateState = (next) => {
+    setState(next);
+    saveState(next);
+  };
+
+  const login = async () => {
+    setSigningIn(true);
+    setLoginError("");
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      setLoginError(authErrorMessage(error));
+    } finally {
+      setSigningIn(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOutUser();
+    } catch {
+      setLoginError("Abmelden fehlgeschlagen. Bitte erneut versuchen.");
+      return;
+    }
+    setPage("dashboard");
+    setSelectedCategory(null);
+  };
+
+  if (!authReady) {
+    return (
+      <div className="auth-splash">
+        <div className="brand">Moneto<span>.</span></div>
+        <p>Anmeldung wird geprüft …</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Login error={loginError} busy={signingIn} onGoogleLogin={login} />;
+  }
+
+  return (
+    <div className="app-shell">
+      <Sidebar page={page} setPage={setPage} user={user} onLogout={logout} />
+      <main className="main-area">
+        <Topbar page={page} user={user} />
+        {page === "dashboard" && (
+          <Dashboard
+            state={state}
+            onCategory={(id) => {
+              setSelectedCategory(id);
+              setPage("category");
+            }}
+          />
+        )}
+        {page === "settings" && (
+          <SettingsPage
+            state={state}
+            updateState={updateState}
+            onCategory={(id) => {
+              setSelectedCategory(id);
+              setPage("category");
+            }}
+            onReset={() => updateState(resetDemo())}
+          />
+        )}
+        {page === "category" && (
+          <CategoryPage
+            state={state}
+            categoryId={selectedCategory}
+            updateState={updateState}
+            onBack={() => setPage("dashboard")}
+          />
+        )}
+      </main>
+    </div>
+  );
+}
+
+function GoogleMark() {
+  return (
+    <svg className="google-mark" viewBox="0 0 18 18" aria-hidden="true">
+      <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z" />
+      <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.94v2.33A9 9 0 0 0 9 18Z" />
+      <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.94a9 9 0 0 0 0 8.1l3.03-2.33Z" />
+      <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.9 11.43 0 9 0A9 9 0 0 0 .94 4.95l3.03 2.33C4.68 5.16 6.66 3.58 9 3.58Z" />
+    </svg>
+  );
+}
+
+function Login({ error, busy, onGoogleLogin }) {
+  return (
+    <div className="login-page">
+      <div className="login-visual">
+        <div className="login-brand">Moneto<span>.</span></div>
+        <div className="login-visual-copy">
+          <p>Deine Ausgaben. Einfach im Blick.</p>
+          <h1>Wohin geht<br />dein Geld?</h1>
+          <div className="mini-donut">
+            <div className="mini-donut-hole">Moneto</div>
+          </div>
+        </div>
+      </div>
+      <div className="login-panel">
+        <div className="login-card">
+          <div className="mobile-brand">Moneto<span>.</span></div>
+          <div className="eyebrow">WILLKOMMEN ZURÜCK</div>
+          <h2>Anmelden</h2>
+          <p className="muted">Melde dich mit deinem Google-Konto an, um deine Finanzen zu verwalten.</p>
+          {error && <div className="error-message">{error}</div>}
+          <button className="google-button" type="button" onClick={onGoogleLogin} disabled={busy}>
+            <GoogleMark />
+            {busy ? "Anmeldung läuft …" : "Mit Google anmelden"}
+          </button>
+          <div className="demo-note">
+            Die Anmeldung erfolgt ausschließlich über Google. Es wird kein Passwort gespeichert.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Avatar({ user, className }) {
+  if (user?.photo) {
+    return <img className={`${className} avatar-photo`} src={user.photo} alt="" referrerPolicy="no-referrer" />;
+  }
+  return <div className={className}>{initials(user?.name)}</div>;
+}
+
+function Sidebar({ page, setPage, user, onLogout }) {
+  return (
+    <aside className="sidebar">
+      <div className="brand">Moneto<span>.</span></div>
+      <nav>
+        <button className={page === "dashboard" ? "nav-item active" : "nav-item"} onClick={() => setPage("dashboard")}>
+          <span className="nav-icon">◔</span> Übersicht
+        </button>
+        <button className={page === "settings" ? "nav-item active" : "nav-item"} onClick={() => setPage("settings")}>
+          <Settings size={20} /> Einstellungen
+        </button>
+      </nav>
+      <div className="sidebar-bottom">
+        <div className="sidebar-user">
+          <Avatar user={user} className="avatar" />
+          <div className="sidebar-user-text">
+            <strong>{user.name}</strong>
+            <span>{user.email}</span>
+          </div>
+        </div>
+        <button className="logout-button" onClick={onLogout}>
+          <LogOut size={18} /> Abmelden
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+function Topbar({ page, user }) {
+  return (
+    <header className="topbar">
+      <div className="mobile-menu"><Menu size={22} /></div>
+      <div>
+        <div className="topbar-kicker">{page === "settings" ? "KONTO" : page === "category" ? "AUSGABEN" : "ÜBERSICHT"}</div>
+        <h1>{page === "settings" ? "Einstellungen" : page === "category" ? "Kategorie" : "Finanzübersicht"}</h1>
+      </div>
+      <div className="topbar-right">
+        <span className="period">September 2026</span>
+        {user?.photo
+          ? <img className="top-avatar avatar-photo" src={user.photo} alt={user.name} referrerPolicy="no-referrer" />
+          : <div className="top-avatar" title={user?.name}><CircleUserRound size={22} /></div>}
+      </div>
+    </header>
+  );
+}
+
+function Dashboard({ state, onCategory }) {
+  const total = state.expenses.reduce((sum, x) => sum + x.amount, 0);
+  const budget = 1177;
+  const balance = budget - total;
+  const max = Math.max(...state.categories.map((c) => categoryTotal(c.id, state.expenses)), 1);
+
+  return (
+    <section className="page-content">
+      <div className="summary-grid">
+        <div className="summary-card primary">
+          <span>Verfügbares Budget</span>
+          <strong>{fmt.format(budget)}</strong>
+          <small>für September</small>
+        </div>
+        <div className="summary-card">
+          <span>Ausgaben</span>
+          <strong>{fmt.format(total)}</strong>
+          <small>{state.expenses.length} Buchungen</small>
+        </div>
+        <div className="summary-card">
+          <span>Kontostand</span>
+          <strong className={balance < 0 ? "negative" : "positive"}>{fmt.format(balance)}</strong>
+          <small>nach Ausgaben</small>
+        </div>
+      </div>
+
+      <div className="dashboard-grid">
+        <div className="chart-card">
+          <div className="card-heading">
+            <div>
+              <div className="eyebrow">AUSGABEN NACH KATEGORIE</div>
+              <h2>28. Aug. – 27. Sep.</h2>
+            </div>
+            <button className="ghost-button">Monat <ChevronRight size={16} /></button>
+          </div>
+          <DonutChart
+            categories={state.categories}
+            expenses={state.expenses}
+            balance={balance}
+            budget={budget}
+            onSelect={onCategory}
+          />
+        </div>
+
+        <div className="categories-card">
+          <div className="card-heading">
+            <div>
+              <div className="eyebrow">KATEGORIEN</div>
+              <h2>Deine Ausgaben</h2>
+            </div>
+          </div>
+          <div className="category-list">
+            {state.categories.map((category) => {
+              const amount = categoryTotal(category.id, state.expenses);
+              const width = Math.min(100, (amount / max) * 100);
+              return (
+                <button className="category-row" key={category.id} onClick={() => onCategory(category.id)}>
+                  <div className="category-icon" style={{ color: category.color, background: `${category.color}18` }}>
+                    <Icon name={category.icon} size={21} />
+                  </div>
+                  <div className="category-meta">
+                    <div><strong>{category.name}</strong><span>{fmt.format(amount)}</span></div>
+                    <div className="progress"><span style={{ width: `${width}%`, background: category.color }} /></div>
+                  </div>
+                  <ChevronRight size={18} className="row-chevron" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="recent-card">
+        <div className="card-heading">
+          <div>
+            <div className="eyebrow">LETZTE BUCHUNGEN</div>
+            <h2>Aktuelle Ausgaben</h2>
+          </div>
+        </div>
+        <div className="expense-table">
+          {state.expenses.slice().sort((a,b) => b.date.localeCompare(a.date)).slice(0, 5).map((expense) => {
+            const category = state.categories.find(c => c.id === expense.categoryId);
+            return (
+              <div className="expense-row" key={expense.id}>
+                <div className="expense-icon" style={{ color: category?.color }}>
+                  <Icon name={category?.icon} size={20} />
+                </div>
+                <div className="expense-info">
+                  <strong>{expense.store}</strong>
+                  <span>{category?.name} · {formatDate(expense.date)}</span>
+                </div>
+                <strong className="expense-amount">− {fmt.format(expense.amount)}</strong>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SettingsPage({ state, updateState, onCategory, onReset }) {
+  const [editing, setEditing] = useState(null);
+  const [name, setName] = useState("");
+  const [icon, setIcon] = useState("shopping-basket");
+  const [color, setColor] = useState(COLOR_OPTIONS[0]);
+
+  const startNew = () => {
+    setEditing("new");
+    setName("");
+    setIcon("shopping-basket");
+    setColor(COLOR_OPTIONS[0]);
+  };
+
+  const startEdit = (category) => {
+    setEditing(category.id);
+    setName(category.name);
+    setIcon(category.icon);
+    setColor(category.color);
+  };
+
+  const save = () => {
+    const clean = name.trim();
+    if (!clean) return;
+    let next;
+    if (editing === "new") {
+      next = {
+        ...state,
+        categories: [...state.categories, {
+          id: `cat-${Date.now()}`,
+          name: clean,
+          icon,
+          color
+        }]
+      };
+    } else {
+      next = {
+        ...state,
+        categories: state.categories.map(c => c.id === editing ? { ...c, name: clean, icon, color } : c)
+      };
+    }
+    updateState(next);
+    setEditing(null);
+  };
+
+  const remove = (id) => {
+    if (!confirm("Kategorie wirklich löschen? Zugehörige Ausgaben werden ebenfalls entfernt.")) return;
+    updateState({
+      ...state,
+      categories: state.categories.filter(c => c.id !== id),
+      expenses: state.expenses.filter(e => e.categoryId !== id)
+    });
+  };
+
+  return (
+    <section className="page-content settings-page">
+      <div className="settings-intro">
+        <div>
+          <div className="eyebrow">PERSONALISIEREN</div>
+          <h2>Deine Kategorien</h2>
+          <p className="muted">Erstelle deine eigenen Ausgabenkategorien. Diese Ansicht ist bereits für eine spätere Firebase-Anbindung vorbereitet.</p>
+        </div>
+        <button className="primary-button compact" onClick={startNew}><Plus size={18} /> Neue Kategorie</button>
+      </div>
+
+      <div className="settings-grid">
+        <div className="settings-card">
+          {state.categories.map((category) => (
+            <div className="settings-category" key={category.id}>
+              <button className="settings-category-main" onClick={() => onCategory(category.id)}>
+                <div className="category-icon" style={{ color: category.color, background: `${category.color}18` }}>
+                  <Icon name={category.icon} size={21} />
+                </div>
+                <div>
+                  <strong>{category.name}</strong>
+                  <span>{state.expenses.filter(e => e.categoryId === category.id).length} Buchungen</span>
+                </div>
+              </button>
+              <div className="settings-actions">
+                <button className="icon-button" title="Bearbeiten" onClick={() => startEdit(category)}><Pencil size={17} /></button>
+                <button className="icon-button danger" title="Löschen" onClick={() => remove(category.id)}><Trash2 size={17} /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {editing ? (
+          <div className="editor-card">
+            <div className="eyebrow">{editing === "new" ? "NEUE KATEGORIE" : "KATEGORIE BEARBEITEN"}</div>
+            <h3>{editing === "new" ? "Kategorie hinzufügen" : "Kategorie ändern"}</h3>
+            <label>
+              Name
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="z. B. Lebensmittel" autoFocus />
+            </label>
+            <label>
+              Icon
+              <div className="icon-picker">
+                {Object.keys(ICONS).map((key) => (
+                  <button key={key} className={icon === key ? "icon-choice selected" : "icon-choice"} onClick={() => setIcon(key)}>
+                    <Icon name={key} size={20} />
+                  </button>
+                ))}
+              </div>
+            </label>
+            <label>
+              Farbe
+              <div className="color-picker">
+                {COLOR_OPTIONS.map((c) => (
+                  <button key={c} className={color === c ? "color-choice selected" : "color-choice"} style={{ background: c }} onClick={() => setColor(c)} />
+                ))}
+              </div>
+            </label>
+            <div className="editor-actions">
+              <button className="secondary-button" onClick={() => setEditing(null)}>Abbrechen</button>
+              <button className="primary-button" onClick={save}><Save size={17} /> Speichern</button>
+            </div>
+          </div>
+        ) : (
+          <div className="settings-tip">
+            <Settings size={28} />
+            <h3>Flexibel bleiben</h3>
+            <p>Lege Kategorien passend zu deinem Alltag an. Später werden sie automatisch pro Benutzer in Firestore gespeichert.</p>
+          </div>
+        )}
+      </div>
+
+      <div className="developer-card">
+        <div>
+          <strong>Frontend-Demo</strong>
+          <span>Aktuell werden Daten nur lokal im Browser gespeichert.</span>
+        </div>
+        <button className="secondary-button" onClick={onReset}>Demo-Daten zurücksetzen</button>
+      </div>
+    </section>
+  );
+}
+
+function CategoryPage({ state, categoryId, updateState, onBack }) {
+  const category = state.categories.find(c => c.id === categoryId);
+  const [amount, setAmount] = useState("");
+  const [store, setStore] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [saved, setSaved] = useState(false);
+
+  if (!category) {
+    return (
+      <section className="page-content">
+        <button className="back-button" onClick={onBack}><ArrowLeft size={18} /> Zurück</button>
+        <div className="empty-state">Kategorie nicht gefunden.</div>
+      </section>
+    );
+  }
+
+  const expenses = state.expenses.filter(e => e.categoryId === category.id).sort((a,b) => b.date.localeCompare(a.date));
+  const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+
+  const addExpense = (e) => {
+    e.preventDefault();
+    const parsed = Number(String(amount).replace(",", "."));
+    if (!parsed || parsed <= 0 || !store.trim()) return;
+
+    updateState({
+      ...state,
+      expenses: [
+        ...state.expenses,
+        {
+          id: `expense-${Date.now()}`,
+          categoryId: category.id,
+          amount: parsed,
+          store: store.trim(),
+          date
+        }
+      ]
+    });
+    setAmount("");
+    setStore("");
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1800);
+  };
+
+  return (
+    <section className="page-content category-page">
+      <button className="back-button" onClick={onBack}><ArrowLeft size={18} /> Zur Übersicht</button>
+
+      <div className="category-hero">
+        <div className="category-hero-icon" style={{ color: category.color, background: `${category.color}18` }}>
+          <Icon name={category.icon} size={30} />
+        </div>
+        <div>
+          <div className="eyebrow">KATEGORIE</div>
+          <h2>{category.name}</h2>
+          <p>{expenses.length} Buchungen · {fmt.format(total)} insgesamt</p>
+        </div>
+      </div>
+
+      <div className="category-layout">
+        <form className="expense-form-card" onSubmit={addExpense}>
+          <div className="eyebrow">NEUE AUSGABE</div>
+          <h3>Ausgabe hinzufügen</h3>
+          <label>
+            Betrag
+            <div className="money-input">
+              <input
+                inputMode="decimal"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0,00"
+              />
+              <span>€</span>
+            </div>
+          </label>
+          <label>
+            Geschäft / Händler
+            <input value={store} onChange={(e) => setStore(e.target.value)} placeholder="z. B. REWE" />
+          </label>
+          <label>
+            Datum
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </label>
+          <button className="primary-button full" type="submit">
+            {saved ? <><Check size={18} /> Gespeichert</> : <><Plus size={18} /> Ausgabe speichern</>}
+          </button>
+          <p className="form-note">Die Ausgabe wird momentan nur lokal gespeichert.</p>
+        </form>
+
+        <div className="expense-list-card">
+          <div className="card-heading">
+            <div>
+              <div className="eyebrow">VERLAUF</div>
+              <h3>Ausgaben in {category.name}</h3>
+            </div>
+          </div>
+          {expenses.length ? (
+            <div className="expense-table">
+              {expenses.map((expense) => (
+                <div className="expense-row" key={expense.id}>
+                  <div className="expense-icon" style={{ color: category.color }}>
+                    <Icon name={category.icon} size={20} />
+                  </div>
+                  <div className="expense-info">
+                    <strong>{expense.store}</strong>
+                    <span>{formatDate(expense.date)}</span>
+                  </div>
+                  <strong className="expense-amount">− {fmt.format(expense.amount)}</strong>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state compact-empty">
+              Noch keine Ausgaben in dieser Kategorie.
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+export default App;
