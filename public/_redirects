@@ -1,0 +1,3 @@
+# Alle Pfade an die SPA geben - sonst liefert Netlify bei /join, /items usw.
+# beim Neuladen einen 404, weil es diese Dateien nicht gibt.
+/*    /index.html   200
