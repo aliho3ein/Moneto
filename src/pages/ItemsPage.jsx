@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import PeriodHeader, { usePeriodSwipe } from "../components/PeriodHeader";
 import TabBar from "../components/TabBar";
 import { Icon } from "../icons";
+import Money from "../components/Money";
 
 const UNKNOWN_CATEGORY = { name: "Ohne Kategorie", color: "#b9c7bf", icon: "basket" };
 
@@ -38,7 +39,7 @@ function signedAmount(item) {
 export default function ItemsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { activeId, period, formatMoney } = useWorkspace();
+  const { activeId, period } = useWorkspace();
   const swipe = usePeriodSwipe();
 
   const [categories, setCategories] = useState(null);
@@ -48,6 +49,8 @@ export default function ItemsPage() {
   const [groupBy, setGroupBy] = useState("date");
   // Eingeklappte Gruppen, Schlüssel ist der Gruppenschlüssel (Tag oder Kategorie)
   const [collapsed, setCollapsed] = useState({});
+  // Kontostand aufgeklappt: zeigt Einnahmen und Ausgaben getrennt
+  const [showTotals, setShowTotals] = useState(false);
   const requested = useRef(new Set());
 
   useEffect(() => {
@@ -142,7 +145,6 @@ export default function ItemsPage() {
   }
 
   const amountClass = (cents) => (cents >= 0 ? "is-income" : "is-expense");
-  const signed = (cents) => `${cents >= 0 ? "+" : "−"} ${formatMoney(Math.abs(cents))}`;
 
   return (
     <div className="screen items-screen" {...swipe}>
@@ -191,12 +193,35 @@ export default function ItemsPage() {
             </button>
           </div>
 
-          {/* Gesamtsumme des Zeitraums */}
-          <div className="total-row">
-            <span>
-              Gesamt · {data.items.length} {data.items.length === 1 ? "Eintrag" : "Einträge"}
-            </span>
-            <strong className={amountClass(data.balance)}>{signed(data.balance)}</strong>
+          {/* Kontostand des Zeitraums – aufklappbar für Einnahmen/Ausgaben */}
+          <div className="total-box">
+            <button
+              type="button"
+              className="total-row"
+              onClick={() => setShowTotals((v) => !v)}
+              aria-expanded={showTotals}
+            >
+              <span className="total-row__label">
+                {showTotals ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                Kontostand · {data.items.length} {data.items.length === 1 ? "Eintrag" : "Einträge"}
+              </span>
+              <strong className={amountClass(data.balance)}>
+                <Money cents={data.balance} sign={data.balance >= 0 ? "+" : "−"} />
+              </strong>
+            </button>
+
+            {showTotals && (
+              <dl className="totals">
+                <div className="totals__row">
+                  <dt>Einnahmen</dt>
+                  <dd className="is-income"><Money cents={data.income} sign="+" /></dd>
+                </div>
+                <div className="totals__row">
+                  <dt>Ausgaben</dt>
+                  <dd className="is-expense"><Money cents={data.expense} sign="−" /></dd>
+                </div>
+              </dl>
+            )}
           </div>
 
           {groups.map((group) => (
@@ -219,7 +244,7 @@ export default function ItemsPage() {
                 )}
                 <span className="group-head__title">{group.title}</span>
                 <span className={`group-head__sum ${amountClass(group.sum)}`}>
-                  {signed(group.sum)}
+                  <Money cents={group.sum} sign={group.sum >= 0 ? "+" : "−"} />
                 </span>
               </h2>
 
@@ -263,7 +288,7 @@ export default function ItemsPage() {
                           )}
                         </span>
                         <span className={income ? "item-row__amount is-income" : "item-row__amount is-expense"}>
-                          {income ? "+" : "−"} {formatMoney(item.amount)}
+                          <Money cents={item.amount} sign={income ? "+" : "−"} />
                         </span>
                       </button>
                     </li>

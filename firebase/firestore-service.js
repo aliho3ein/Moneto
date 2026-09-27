@@ -2,7 +2,7 @@ import { auth, db } from "./firebase.js";
 import {
   doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs,
   collection, query, where, orderBy, limit, writeBatch, serverTimestamp,
-  Timestamp, arrayRemove, onSnapshot
+  Timestamp, arrayRemove, arrayUnion, onSnapshot
 } from "firebase/firestore";
 
 // =====================================================================
@@ -33,12 +33,12 @@ export async function getUserNames(uids) {
 // wäre nicht möglich: die Rules erlauben in categories nur
 // name, icon, color, type, archived, order.
 export const DEFAULT_CATEGORIES = [
-  { id: "std-lebensmittel", name: "Lebensmittel", icon: "basket",  color: "#52a31b", type: "expense" },
-  { id: "std-mobilitaet",   name: "Mobilität",    icon: "car",     color: "#616e83", type: "expense" },
-  { id: "std-haushalt",     name: "Haushalt",     icon: "house",   color: "#6FA8DC", type: "expense" },
-  { id: "std-freizeit",     name: "Freizeit",     icon: "game",    color: "#15c6cc", type: "expense" },
-  { id: "std-kleidung",     name: "Kleidung",     icon: "shirt",   color: "#e65cdf", type: "expense" },
-  { id: "std-sparen",       name: "Sparen",       icon: "savings", color: "#cce79f", type: "expense" },
+  { id: "std-lebensmittel", name: "Lebensmittel", icon: "basket",  color: "#7c9969", type: "expense" },
+  { id: "std-mobilitaet",   name: "Mobilität",    icon: "car",     color: "#7688a3", type: "expense" },
+  { id: "std-haushalt",     name: "Haushalt",     icon: "house",   color: "#ad9e72", type: "expense" },
+  { id: "std-kleidung",     name: "Kleidung",     icon: "shirt",   color: "#aa70a7", type: "expense" },
+  { id: "std-freizeit",     name: "Freizeit",     icon: "game",    color: "#8cc2c4", type: "expense" },
+  { id: "std-sparen",       name: "Sparen",       icon: "savings", color: "#e79f9f", type: "expense" },
   { id: "std-gehalt",       name: "Gehalt",       icon: "money",   color: "#5CA36E", type: "income"  }
 ];
 
@@ -126,6 +126,17 @@ export async function updateWorkspaceSettings(wsId, { periodStartDay, currency }
   if (periodStartDay !== undefined) data.periodStartDay = Number(periodStartDay);
   if (currency !== undefined) data.currency = currency;
   await updateDoc(doc(db, "workspaces", wsId), data);
+}
+
+// Einem Haushalt per Einladungslink beitreten.
+// Wichtig: das Dokument vorher NICHT lesen – Nicht-Mitglieder dürfen das
+// laut Rules nicht. Der mitgeschickte joinToken muss dem shareToken des
+// Haushalts entsprechen, sonst weisen die Rules den Schreibversuch ab.
+export async function joinWorkspace(wsId, token) {
+  await updateDoc(doc(db, "workspaces", wsId), {
+    members: arrayUnion(auth.currentUser.uid),
+    joinToken: token
+  });
 }
 
 export async function leaveWorkspace(wsId) {

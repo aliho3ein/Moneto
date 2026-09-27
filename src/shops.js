@@ -58,7 +58,17 @@ const BY_CATEGORY = {
       { name: "Bosch Service", domain: "bosch-service.com", color: "#005691" },
       { name: "Premio", domain: "premio.de", color: "#E30613" }
     ]
-  }
+  },
+  "std-kleidung": [
+    { name: "Zara", domain: "zara.com", color: "#1F1F1F" },
+    { name: "H&M", domain: "hm.com", color: "#E50010" },
+    { name: "Takko", domain: "takko.com", color: "#989b11" },
+    { name: "Primark", domain: "primark.com", color: "#0069B4" },
+    { name: "C&A", domain: "c-and-a.com", color: "#1b0f50" },
+    { name: "Newyourker", domain: "newyorker.de", color: "#C8102E" },
+    { name: "Kik", domain: "kik.de", color: "#E94E1B" },
+    { name: "Deichmann", domain: "deichmann.de", color: "#C8102E" },
+  ]
 };
 
 // Für Kategorien ohne feste ID (selbst angelegte) über den Namen suchen.
@@ -72,7 +82,10 @@ const BY_NAME = {
   baumarkt: BY_CATEGORY["std-haushalt"],
   mobilität: BY_CATEGORY["std-mobilitaet"],
   auto: BY_CATEGORY["std-mobilitaet"],
-  tanken: BY_CATEGORY["std-mobilitaet"]
+  tanken: BY_CATEGORY["std-mobilitaet"],
+  kleidung: BY_CATEGORY["std-kleidung"],
+  mode: BY_CATEGORY["std-kleidung"],
+  schuhe: BY_CATEGORY["std-kleidung"]
 };
 
 // Favicon der Seite über den Dienst von Google.

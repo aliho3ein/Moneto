@@ -9,6 +9,7 @@ import { useWorkspace } from "../context/WorkspaceContext";
 import PeriodHeader, { usePeriodSwipe } from "../components/PeriodHeader";
 import TabBar from "../components/TabBar";
 import { Icon } from "../icons";
+import Money from "../components/Money";
 import iconMark from "../assets/logo/moneto-icon.svg";
 
 const RING_EMPTY = "#e2efe7";
@@ -16,7 +17,7 @@ const UNKNOWN_CATEGORY = { name: "Ohne Kategorie", color: "#b9c7bf", icon: "bask
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { activeId, workspace, period, formatMoney } = useWorkspace();
+  const { activeId, workspace, period } = useWorkspace();
   const swipe = usePeriodSwipe();
 
   const [categories, setCategories] = useState(null);
@@ -147,10 +148,10 @@ export default function HomePage() {
         </ResponsiveContainer>
 
         <div className="donut__center">
-          <span className="donut__label">Einnahmen</span>
-          <strong className="donut__income">{formatMoney(data.income)}</strong>
-          <span className="donut__label">Ausgaben</span>
-          <strong className="donut__expense">{formatMoney(data.expense)}</strong>
+          <span className="donut__label">Kontostand</span>
+          <strong className={data.balance >= 0 ? "donut__balance is-income" : "donut__balance is-expense"}>
+            <Money cents={data.balance} />
+          </strong>
         </div>
       </section>
 
@@ -163,7 +164,7 @@ export default function HomePage() {
               </span>
               <span className="legend__name">{s.name}</span>
               <span className="legend__percent">{s.percent} %</span>
-              <span className="legend__sum">{formatMoney(s.sum)}</span>
+              <span className="legend__sum"><Money cents={s.sum} /></span>
             </li>
           ))}
         </ul>

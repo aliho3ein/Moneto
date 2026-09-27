@@ -8,6 +8,7 @@ import { useWorkspace } from "../context/WorkspaceContext";
 import { Icon } from "../icons";
 import { currencySymbol } from "../currencies";
 import { shopGroupsFor, faviconUrl } from "../shops";
+import Money from "../components/Money";
 
 // Eingabe auf deutsches Format begrenzen: Ziffern und genau ein Komma.
 // Ein getippter Punkt wird zum Komma, damit euroToCent ihn nicht als
@@ -49,7 +50,7 @@ const emptyArticle = () => ({ name: "", price: "", qty: "1" });
 export default function ItemFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { activeId, currency, formatMoney } = useWorkspace();
+  const { activeId, currency } = useWorkspace();
   // /item/new und /item/:id teilen sich diese Seite
   const isEdit = Boolean(id) && id !== "new";
 
@@ -393,7 +394,7 @@ export default function ItemFormPage() {
                       onError={() => setBrokenIcons((prev) => ({ ...prev, [shop.domain]: true }))}
                     />
                   )}
-                  {shop.name}
+                  {}
                 </button>
               );
             })}
@@ -482,7 +483,7 @@ export default function ItemFormPage() {
 
             {articleSum > 0 && (
               <p className="articles__sum">
-                Summe {formatMoney(articleSum)}
+                Summe <Money cents={articleSum} />
                 <button
                   type="button"
                   className="link"

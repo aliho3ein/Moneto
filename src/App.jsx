@@ -9,6 +9,8 @@ import ItemFormPage from "./pages/ItemFormPage";
 import ItemsPage from "./pages/ItemsPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import SettingsPage from "./pages/SettingsPage";
+import JoinPage from "./pages/JoinPage";
+import { readJoinParams } from "./joinParams";
 
 function Loading() {
   return (
@@ -36,6 +38,8 @@ function RequireWorkspace({ children }) {
   const { activeId, loading } = useWorkspace();
 
   if (loading) return <Loading />;
+  // Offene Einladung? Dann zuerst beitreten statt einen Haushalt anzulegen.
+  if (!activeId && readJoinParams()) return <Navigate to="/join" replace />;
   if (!activeId) return <Navigate to="/start" replace />;
   return children;
 }
@@ -72,7 +76,7 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
 
             <Route path="/start" element={protectedPage(<StartPage />, { needsWorkspace: false })} />
-            <Route path="/join" element={protectedPage(<Placeholder title="Haushalt beitreten" />, { needsWorkspace: false })} />
+            <Route path="/join" element={protectedPage(<JoinPage />, { needsWorkspace: false })} />
 
             <Route path="/" element={protectedPage(<HomePage />)} />
             <Route path="/items" element={protectedPage(<ItemsPage />)} />
