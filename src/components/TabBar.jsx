@@ -1,9 +1,10 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, ListOrdered, Plus } from "lucide-react";
+import { Home, Plus } from "lucide-react";
 
-// Untere Menüleiste: links die Einträge, in der Mitte der runde Plus-Button.
-// Die Einstellungen sitzen oben rechts in der Kopfzeile.
+// Untere Leiste mit einem einzigen runden Knopf: auf der Übersicht legt er
+// einen Eintrag an, in der Einträge-Liste führt er zurück zur Übersicht.
+// Zur Liste kommt man von der Übersicht aus über den Donut.
 export default function TabBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -13,25 +14,12 @@ export default function TabBar() {
     <nav className="tabbar">
       <button
         type="button"
-        className={onItems ? "tabbar__btn is-active" : "tabbar__btn"}
-        onClick={() => navigate(onItems ? "/" : "/items")}
-      >
-        {onItems ? <Home size={22} /> : <ListOrdered size={22} />}
-        <span>{onItems ? "Übersicht" : "Einträge"}</span>
-      </button>
-
-      <button
-        type="button"
         className="fab"
-        onClick={() => navigate("/item/new")}
-        aria-label="Eintrag hinzufügen"
+        onClick={() => navigate(onItems ? "/" : "/item/new")}
+        aria-label={onItems ? "Zur Übersicht" : "Eintrag hinzufügen"}
       >
-        <Plus size={28} strokeWidth={2.4} />
+        {onItems ? <Home size={26} strokeWidth={2} /> : <Plus size={28} strokeWidth={2.4} />}
       </button>
-
-      {/* Platzhalter, damit der Plus-Knopf mittig bleibt. Die Einstellungen
-          sitzen oben rechts auf der Übersicht. */}
-      <span className="tabbar__btn" aria-hidden="true" />
     </nav>
   );
 }

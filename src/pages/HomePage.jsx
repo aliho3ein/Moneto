@@ -18,7 +18,8 @@ const UNKNOWN_CATEGORY = { name: "Ohne Kategorie", color: "#b9c7bf", icon: "bask
 export default function HomePage() {
   const navigate = useNavigate();
   const { activeId, workspace, period } = useWorkspace();
-  const swipe = usePeriodSwipe();
+  // Tipp auf den Donut öffnet die Einträge, Wischen bleibt der Zeitraumwechsel.
+  const swipe = usePeriodSwipe(() => navigate("/items"));
 
   const [categories, setCategories] = useState(null);
   const [data, setData] = useState(null);
@@ -122,7 +123,14 @@ export default function HomePage() {
 
       {error && <p className="error-box" role="alert">{error}</p>}
 
-      <section className="donut" {...swipe}>
+      <section
+        className="donut"
+        role="button"
+        tabIndex={0}
+        aria-label="Einträge anzeigen"
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate("/items"); }}
+        {...swipe}
+      >
         <ResponsiveContainer width="100%" height={280}>
           <PieChart>
             <Pie
@@ -155,22 +163,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {slices.length > 0 ? (
-        <ul className="legend">
-          {slices.map((s) => (
-            <li key={s.categoryId} className="legend__row">
-              <span className="legend__icon" style={{ background: s.color }}>
-                <Icon name={s.icon} size={16} color="#fff" />
-              </span>
-              <span className="legend__name">{s.name}</span>
-              <span className="legend__percent">{s.percent} %</span>
-              <span className="legend__sum"><Money cents={s.sum} /></span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="hint">Noch keine Ausgaben in diesem Zeitraum.</p>
-      )}
+      {/* Nur dieser Bereich scrollt – Kopfzeile, Zeitraum, Donut und die
+          untere Leiste bleiben stehen. */}
+      <div className="home__scroll">
+        {slices.length > 0 ? (
+          <ul className="legend">
+            {slices.map((s) => (
+              <li key={s.categoryId} className="legend__row">
+                <span className="legend__icon" style={{ background: s.color }}>
+                  <Icon name={s.icon} size={16} color="#fff" />
+                </span>
+                <span className="legend__name">{s.name}</span>
+                <span className="legend__percent">{s.percent} %</span>
+                <span className="legend__sum"><Money cents={s.sum} /></span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="hint">Noch keine Ausgaben in diesem Zeitraum.</p>
+        )}
+      </div>
 
       <TabBar />
     </div>

@@ -6,10 +6,10 @@
 
 :root {
   --bg: #f2f5fc;
-  --seBg:#e6ebf7;
+  --seBg:#1B2A4A;
   --card: #ffffff;
   --text: #1f2a24;
-  --muted: #706b7c;
+  --muted: #aba9af;
   --line: #e2e6ef;
   --income: #5ca36e;
   --expense: #E36B4F;
@@ -22,7 +22,7 @@
   --shadow: 0 10px 28px rgba(32, 31, 42, 0.08);
 
   /* Mindestgroesse fuer Touch-Flaechen */
-  --tap: 52px;
+  --tap: 64px;
 }
 
 * {
@@ -365,9 +365,23 @@ textarea {
 
 /* ---------------- Startseite ---------------- */
 
+/* Feste Höhe: Kopfzeile, Zeitraum, Donut und Menüleiste stehen still,
+   gescrollt wird nur die Liste der Ausgaben darunter. */
 .home {
   gap: 14px;
-  padding-bottom: calc(112px + env(safe-area-inset-bottom));
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.home__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Platz, damit die letzte Zeile nicht unter der Menüleiste verschwindet */
+  padding-bottom: calc(104px + env(safe-area-inset-bottom));
 }
 
 .period {
@@ -540,8 +554,7 @@ textarea {
   max-width: 480px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: center;
   padding: 8px 24px calc(10px + env(safe-area-inset-bottom));
   background: var(--seBg);
   backdrop-filter: blur(8px);
@@ -558,26 +571,23 @@ textarea {
   gap: 2px;
   border: 0;
   background: none;
-  color: var(--muted);
+  color: var(--primary);
   font-size: 11px;
 }
 
-.tabbar__btn:active {
-  color: var(--accent);
-}
 
 .fab {
   flex: none;
-  width: 62px;
-  height: 62px;
+  width: 72px;
+  height: 72px;
   margin-top: -26px;
   display: grid;
   place-items: center;
   border: 4px solid var(--bg);
   border-radius: 50%;
   background: var(--primary);
-  color: #fff;
-  box-shadow: var(--shadow);
+  color: var(--accent);
+  box-shadow: var(--bg);
 }
 
 .fab:active {
@@ -635,6 +645,8 @@ textarea {
 .toggle__btn.is-active {
   background: #fff;
   box-shadow: var(--shadow);
+  color: var(--accent);
+
 }
 
 .toggle__btn.is-active.is-expense {
@@ -949,7 +961,7 @@ textarea {
 }
 
 .tabbar__btn.is-active {
-  color: var(--accent);
+  color: var(--primary);
 }
 
 /* ---------------- Kategorien ---------------- */
@@ -1292,7 +1304,7 @@ select.input {
   margin-top: 10px;
   padding: 4px;
   border-radius: 12px;
-  background: #e8f3ec;
+  background: var(--line);
 }
 
 .shop-tab {
@@ -1487,7 +1499,6 @@ select.input {
   transform: translateX(-50%);
   width: 100%;
   max-width: 480px;
-  padding: 10px 20px calc(12px + env(safe-area-inset-bottom));
   background: var(--seBg);
   backdrop-filter: blur(8px);
   border-top: 1px solid var(--line);
@@ -1622,4 +1633,15 @@ select.input {
 
 .donut__center .donut__label {
   margin-bottom: 1px;
+}
+
+/* Der Donut führt zur Einträge-Liste */
+.donut {
+  cursor: pointer;
+}
+
+.donut:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-lg);
 }

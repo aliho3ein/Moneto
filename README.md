@@ -12,6 +12,8 @@ Ein React/Vite-Frontend als Startpunkt für deine Finanz-App. Das Design orienti
 - Einstellungen zum Anlegen, Bearbeiten und Löschen von Kategorien
 - Klick auf eine Kategorie öffnet ein Formular für Betrag + Händlername
 - responsive Grundstruktur, später leicht als Mobile App weiterverwendbar
+- Bakend wurde mit Firebase implementiert
+- Deployed wurde über Netlify
 
 ## Start
 

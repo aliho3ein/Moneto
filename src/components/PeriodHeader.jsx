@@ -12,19 +12,32 @@ export function periodLabel({ start, end }) {
 }
 
 // Wischen nach links = nächster Zeitraum, nach rechts = voriger.
-export function usePeriodSwipe() {
+// `onTap` wird bei einem einfachen Tipp/Klick ausgelöst – nach einem
+// Wischen aber nicht, sonst löste jede Wischgeste zusätzlich den Klick aus.
+export function usePeriodSwipe(onTap) {
   const { setOffset } = useWorkspace();
   const startX = useRef(null);
+  const swiped = useRef(false);
+
   return {
     onTouchStart(e) {
       startX.current = e.changedTouches[0].clientX;
+      swiped.current = false;
     },
     onTouchEnd(e) {
       if (startX.current === null) return;
       const dx = e.changedTouches[0].clientX - startX.current;
       startX.current = null;
       if (Math.abs(dx) < 45) return;
+      swiped.current = true;
       setOffset((o) => o + (dx < 0 ? 1 : -1));
+    },
+    onClick(e) {
+      if (swiped.current) {
+        swiped.current = false;
+        return;
+      }
+      if (onTap) onTap(e);
     }
   };
 }
