@@ -45,6 +45,12 @@ function fromDateInput(value) {
   return new Date(y, m - 1, d, 12, 0, 0);
 }
 
+// Vorauswahl bei einem neuen Eintrag – zuerst über die feste ID der
+// Standard-Kategorie, ersatzweise über den Namen (ältere Haushalte haben
+// für diese Kategorien noch zufällige IDs).
+const DEFAULT_CATEGORY = { expense: "std-lebensmittel", income: "std-gehalt" };
+const DEFAULT_NAME = { expense: "lebensmittel", income: "gehalt" };
+
 const emptyArticle = () => ({ name: "", price: "", qty: "1" });
 
 export default function ItemFormPage() {
@@ -132,8 +138,17 @@ export default function ItemFormPage() {
     if (categoryId && !visibleCategories.some((c) => c.id === categoryId)) {
       setCategoryId("");
       setNote("");
+      return;
     }
-  }, [categories, visibleCategories, categoryId]);
+    // Bei einem neuen Eintrag die übliche Kategorie vorauswählen. Beim
+    // Bearbeiten absichtlich nicht – sonst bekäme ein Eintrag, dessen
+    // Kategorie archiviert wurde, beim Speichern still eine neue.
+    if (!isEdit && !categoryId) {
+      const preset = visibleCategories.find((c) => c.id === DEFAULT_CATEGORY[type])
+        || visibleCategories.find((c) => c.name.trim().toLowerCase() === DEFAULT_NAME[type]);
+      if (preset) setCategoryId(preset.id);
+    }
+  }, [categories, visibleCategories, categoryId, type, isEdit]);
 
   // Vorschläge für die Notiz, passend zur gewählten Kategorie. Manche
   // Kategorien haben Untergruppen (Mobilität: Tanken / Laden / Reparieren).

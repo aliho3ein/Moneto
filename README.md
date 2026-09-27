@@ -1,5 +1,9 @@
 # Finanz App – Desktop Frontend
 
+Diese App wurde von Grund auf mit der KI Claude Opus 5 gebaut.
+
+ [link](https://moneto-de.netlify.app/)
+
 Ein React/Vite-Frontend als Startpunkt für deine Finanz-App. Das Design orientiert sich an deinem Screenshot:
 
 - großer Donut-Chart für Ausgaben
@@ -7,7 +11,6 @@ Ein React/Vite-Frontend als Startpunkt für deine Finanz-App. Das Design orienti
 - Login-Screen
 - Einstellungen zum Anlegen, Bearbeiten und Löschen von Kategorien
 - Klick auf eine Kategorie öffnet ein Formular für Betrag + Händlername
-- lokale Demo-Daten via `localStorage`, noch kein Backend
 - responsive Grundstruktur, später leicht als Mobile App weiterverwendbar
 
 ## Start
@@ -18,21 +21,6 @@ npm run dev
 ```
 
 Danach die von Vite angezeigte lokale URL öffnen.
-
-## Firebase später
-
-Die aktuelle Datenhaltung liegt bewusst hinter einer kleinen Storage-Abstraktion in:
-
-`src/services/storage.js`
-
-Später kannst du dort Firebase Authentication + Firestore anbinden, ohne die UI neu zu bauen.
-
-Empfohlene Struktur:
-
-- Firebase Authentication → Login / Registrierung
-- Firestore `users/{uid}` → Benutzerdaten
-- Firestore `users/{uid}/categories` → Kategorien
-- Firestore `users/{uid}/expenses` → Ausgaben
 
 ## Desktop → Mobile
 

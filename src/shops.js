@@ -17,7 +17,9 @@ const BY_CATEGORY = {
     { name: "Edeka", domain: "edeka.de", color: "#F5C400", dark: true },
     { name: "Penny", domain: "penny.de", color: "#D50C2D" },
     { name: "Netto", domain: "netto-online.de", color: "#a3a52a" },
-    { name: "Norma", domain: "norma-online.de", color: "#a33f46" }
+    { name: "Norma", domain: "norma-online.de", color: "#a33f46" },
+    { name: "Marktkauf", domain: "Marktkauf.de", color: "#368f24" },
+    { name: "Picnic", domain: "picnic.app/", color: "#a5432a" },
   ],
   "std-haushalt": [
     { name: "IKEA", domain: "ikea.de", color: "#0058A3" },
@@ -26,7 +28,10 @@ const BY_CATEGORY = {
     { name: "XXXLutz", domain: "xxxlutz.de", color: "#E30613" },
     { name: "Trends", domain: "trends.de", color: "#7B8698" },
     { name: "Ostermann", domain: "ostermann.de", color: "#D0021B" },
-    { name: "Hornbach", domain: "hornbach.de", color: "#FF7A00" },
+    {name: "Hornbach", domain: "hornbach.de", color: "#FF7A00" },
+    { name: "Poco", domain: "poco.de", color: "#75160a" },
+    { name: "Roller", domain: "roller.de", color: "#0004ff" },
+    { name: "Obi", domain: "obi.de", color: "#FF7A00" },
   ],
   // Mit Untergruppen: statt einer Liste ein Objekt. Die Namen der Gruppen
   // erscheinen im Formular als kleine Reiter über den Chips.
@@ -68,6 +73,8 @@ const BY_CATEGORY = {
     { name: "Newyourker", domain: "newyorker.de", color: "#C8102E" },
     { name: "Kik", domain: "kik.de", color: "#E94E1B" },
     { name: "Deichmann", domain: "deichmann.de", color: "#C8102E" },
+    { name: "Zalando", domain: "en.zalando.de", color: "#f88e04" },
+    { name: "TK-Max", domain: "tkmaxx.com", color: "#f80404" },
   ]
 };
 
