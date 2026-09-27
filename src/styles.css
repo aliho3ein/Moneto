@@ -378,10 +378,18 @@ textarea {
 .home__scroll {
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   /* Platz, damit die letzte Zeile nicht unter der Menüleiste verschwindet */
   padding-bottom: calc(104px + env(safe-area-inset-bottom));
+}
+
+/* Der Donut darf beim Scrollen nicht zusammengedrückt werden */
+.home__scroll .donut {
+  flex: none;
 }
 
 .period {

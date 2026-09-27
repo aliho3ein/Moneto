@@ -123,7 +123,10 @@ export default function HomePage() {
 
       {error && <p className="error-box" role="alert">{error}</p>}
 
-      <section
+      {/* Fest bleiben nur Kopfzeile, Zeitraum und die untere Leiste –
+          Donut und Kategorien scrollen gemeinsam. */}
+      <div className="home__scroll">
+        <section
         className="donut"
         role="button"
         tabIndex={0}
@@ -163,9 +166,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Nur dieser Bereich scrollt – Kopfzeile, Zeitraum, Donut und die
-          untere Leiste bleiben stehen. */}
-      <div className="home__scroll">
         {slices.length > 0 ? (
           <ul className="legend">
             {slices.map((s) => (
