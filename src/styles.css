@@ -152,6 +152,7 @@ textarea {
 /* ---------------- Login ---------------- */
 
 .login {
+  position: relative;
   justify-content: center;
   gap: 36px;
   text-align: center;
@@ -190,6 +191,16 @@ textarea {
   margin: 18px 0 0;
   color: var(--muted);
   font-size: 13px;
+}
+
+.creator__info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
 }
 
 /* ---------------- Kopfzeile einer Seite ---------------- */

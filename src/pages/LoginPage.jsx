@@ -73,6 +73,10 @@ export default function LoginPage() {
           Es wird nur dein Name und dein Profilbild gespeichert.
         </p>
       </div>
+
+      <span className="creator__info">
+        Powered by @aliho3ein
+      </span>
     </div>
   );
 }
