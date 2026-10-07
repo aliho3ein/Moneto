@@ -166,11 +166,24 @@ textarea {
 }
 
 .login__logo {
-  width: 184px;
-  height: 184px;
+  width: min(184px, 60vw);
+  height: auto;
   display: grid;
   place-items: center;
   color: var(--accent);
+}
+
+/* Ohne feste Breite füllt das SVG sonst die Standardgröße von 300px aus */
+.login__mark {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.home__mark {
+  flex: none;
+  width: 24px;
+  height: 24px;
 }
 
 .login__title {
