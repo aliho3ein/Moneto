@@ -10,9 +10,14 @@ import PeriodHeader, { usePeriodSwipe } from "../components/PeriodHeader";
 import TabBar from "../components/TabBar";
 import { Icon } from "../icons";
 import Money from "../components/Money";
+import { useDarkMode, lighten } from "../theme";
 import iconMark from "../assets/logo/moneto-icon.svg";
 
 const RING_EMPTY = "#e2efe7";
+const RING_EMPTY_DARK = "#27324b";
+// Im Dunkelmodus sind die Kategorie-Farben aufgehellt – darauf ist ein
+// dunkles Symbol besser zu erkennen als ein weißes.
+const ICON_ON_COLOR_DARK = "#17223a";
 const UNKNOWN_CATEGORY = { name: "Ohne Kategorie", color: "#b9c7bf", icon: "basket" };
 
 export default function HomePage() {
@@ -20,6 +25,7 @@ export default function HomePage() {
   const { activeId, workspace, period } = useWorkspace();
   // Tipp auf den Donut öffnet die Einträge, Wischen bleibt der Zeitraumwechsel.
   const swipe = usePeriodSwipe(() => navigate("/items"));
+  const dark = useDarkMode();
 
   const [categories, setCategories] = useState(null);
   const [data, setData] = useState(null);
@@ -57,8 +63,13 @@ export default function HomePage() {
 
   const slices = useMemo(() => (data?.percentages || []).map((p) => {
     const cat = byId[p.categoryId] || UNKNOWN_CATEGORY;
-    return { ...p, name: cat.name, color: cat.color, icon: cat.icon };
-  }), [data, byId]);
+    return {
+      ...p,
+      name: cat.name,
+      icon: cat.icon,
+      color: dark ? lighten(cat.color, 0.22) : cat.color
+    };
+  }), [data, byId, dark]);
 
   if (!categories || !data) {
     return (
@@ -81,13 +92,20 @@ export default function HomePage() {
     return (
       <g key={slice.categoryId}>
         {slice.percent >= 9 && (
-          <Icon name={slice.icon} size={18} x={ix - 9} y={iy - 9} color="#fff" strokeWidth={2} />
+          <Icon
+            name={slice.icon}
+            size={18}
+            x={ix - 9}
+            y={iy - 9}
+            color={dark ? ICON_ON_COLOR_DARK : "#fff"}
+            strokeWidth={2}
+          />
         )}
         {slice.percent >= 4 && (
           <text
             x={tx}
             y={ty}
-            fill="#6b7c72"
+            fill={dark ? "#93a0bb" : "#6b7c72"}
             fontSize="12"
             fontWeight="500"
             textAnchor={Math.cos(rad) >= 0 ? "start" : "end"}
@@ -102,7 +120,7 @@ export default function HomePage() {
 
   const ringData = slices.length
     ? slices
-    : [{ categoryId: "leer", sum: 1, color: RING_EMPTY }];
+    : [{ categoryId: "leer", sum: 1, color: dark ? RING_EMPTY_DARK : RING_EMPTY }];
 
   return (
     <div className="screen home">
@@ -171,7 +189,7 @@ export default function HomePage() {
             {slices.map((s) => (
               <li key={s.categoryId} className="legend__row">
                 <span className="legend__icon" style={{ background: s.color }}>
-                  <Icon name={s.icon} size={16} color="#fff" />
+                  <Icon name={s.icon} size={16} color={dark ? ICON_ON_COLOR_DARK : "#fff"} />
                 </span>
                 <span className="legend__name">{s.name}</span>
                 <span className="legend__percent">{s.percent} %</span>

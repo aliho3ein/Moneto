@@ -27,3 +27,9 @@ Danach die von Vite angezeigte lokale URL öffnen.
 ## Desktop → Mobile
 
 Die UI ist als normale React-Anwendung aufgebaut. Für eine spätere Mobile-App kannst du die gleichen Datenmodelle und Firebase-Services mit React Native/Expo wiederverwenden.
+
+## up to comming
+- offline modes
+- icons wenn man darauf clickt sollte farbig werden
+- Jahres übersicht im graph
+- App für android bauen in Appstore 

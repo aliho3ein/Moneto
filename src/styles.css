@@ -14,6 +14,10 @@
   --income: #5ca36e;
   --expense: #E36B4F;
 
+  /* Flächen, die bisher fest hell waren */
+  --input-bg: #ffffff;
+  --surface-soft: #eef2f8;
+
   --primary: #E36B4F;
   --accent: #1B2A4A;
 
@@ -23,6 +27,31 @@
 
   /* Mindestgroesse fuer Touch-Flaechen */
   --tap: 64px;
+}
+
+/* ---------------------------------------------------------------
+   Dunkler Modus: greift automatisch, wenn das Gerät darauf steht.
+   Es werden nur die Farb-Tokens getauscht, alle Regeln bleiben gleich.
+----------------------------------------------------------------*/
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1726;
+    --card: #17223a;
+    --seBg: #0b1222;
+    --text: #e9edf6;
+    --muted: #93a0bb;
+    --line: #27324b;
+
+    /* heller als im hellen Modus, sonst zu dunkel auf dunklem Grund */
+    --income: #6fbd83;
+    --expense: #f08a6e;
+    --primary: #f08a6e;
+    --accent: #3c5c92;
+
+    --input-bg: #121b2d;
+    --surface-soft: #1e2a44;
+    --shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  }
 }
 
 * {
@@ -105,7 +134,7 @@ textarea {
 }
 
 .btn--google {
-  background: #fff;
+  background: var(--card);
   color: var(--text);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
@@ -362,7 +391,7 @@ textarea {
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: #fff;
+  background: var(--input-bg);
   font-size: 17px;
 }
 
@@ -675,7 +704,7 @@ textarea {
 }
 
 .toggle__btn.is-active {
-  background: #fff;
+  background: var(--card);
   box-shadow: var(--shadow);
   color: var(--accent);
 
@@ -1068,7 +1097,7 @@ textarea {
   gap: 4px;
   padding: 3px 8px;
   border-radius: 999px;
-  background: #eef5f0;
+  background: var(--surface-soft);
   color: var(--muted);
   font-size: 11px;
   white-space: nowrap;
@@ -1094,7 +1123,7 @@ textarea {
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fff;
+  background: var(--input-bg);
   color: var(--muted);
 }
 
@@ -1160,7 +1189,7 @@ textarea {
 .settings__count {
   padding: 1px 8px;
   border-radius: 999px;
-  background: #eef5f0;
+  background: var(--surface-soft);
   font-size: 12px;
   letter-spacing: 0;
 }
@@ -1250,7 +1279,7 @@ textarea {
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: #f7fbf8;
+  background: var(--surface-soft);
   color: var(--muted);
   font-size: 13px;
   word-break: break-all;
@@ -1351,7 +1380,7 @@ select.input {
 }
 
 .shop-tab.is-active {
-  background: #fff;
+  background: var(--card);
   color: var(--text);
   box-shadow: var(--shadow);
 }
@@ -1376,7 +1405,7 @@ select.input {
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: #eef5f0;
+  background: var(--surface-soft);
   color: var(--muted);
 }
 
@@ -1676,4 +1705,28 @@ select.input {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
   border-radius: var(--radius-lg);
+}
+
+
+/* ---------------------------------------------------------------
+   Dunkler Modus, Teil 2: Überschreibungen einzelner Bausteine.
+   Muss ans Dateiende, sonst gewinnt bei gleicher Spezifität die
+   später stehende Grundregel (z. B. .fab in Zeile 651).
+----------------------------------------------------------------*/
+@media (prefers-color-scheme: dark) {
+  /* Plus und Haus auf dem runden Knopf hell statt dunkelblau */
+  .fab {
+    color: var(--text);
+  }
+
+  /* Die farbigen Plaketten der Kategorien etwas aufhellen,
+     damit sie auf dunklem Grund nicht absaufen. */
+  .legend__icon,
+  .item-row__icon,
+  .cat-row__icon,
+  .cat-tile__icon,
+  .group-head__icon,
+  .ws-item__icon {
+    filter: brightness(1.12);
+  }
 }
