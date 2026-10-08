@@ -19,7 +19,10 @@ const BY_CATEGORY = {
     { name: "Netto", domain: "netto-online.de", color: "#a3a52a" },
     { name: "Norma", domain: "norma-online.de", color: "#a33f46" },
     { name: "Marktkauf", domain: "Marktkauf.de", color: "#368f24" },
+    { name: "Carrefour", domain: "carrefour.com/", color: "#251c9e" },
     { name: "Picnic", domain: "picnic.app/", color: "#a5432a" },
+    { name: "Albert Heijn", domain: "ah.nl", color: "#2a88a5" },
+
   ],
   "std-haushalt": [
     { name: "IKEA", domain: "ikea.de", color: "#0058A3" },
@@ -27,11 +30,15 @@ const BY_CATEGORY = {
     { name: "Toom", domain: "toom.de", color: "#E2001A" },
     { name: "XXXLutz", domain: "xxxlutz.de", color: "#E30613" },
     { name: "Trends", domain: "trends.de", color: "#7B8698" },
-    { name: "Ostermann", domain: "ostermann.de", color: "#D0021B" },
-    {name: "Hornbach", domain: "hornbach.de", color: "#FF7A00" },
+    { name: "Höffner", domain: "hoeffner.de", color: "#D0021B" },
+    { name: "Hornbach", domain: "hornbach.de", color: "#FF7A00" },
     { name: "Poco", domain: "poco.de", color: "#75160a" },
     { name: "Roller", domain: "roller.de", color: "#0004ff" },
     { name: "Obi", domain: "obi.de", color: "#FF7A00" },
+    { name: "Otto", domain: "otto.de", color: "#c51610" },
+    { name: "JYSK", domain: "jysk.de", color: "#10085c" },
+
+
   ],
   // Mit Untergruppen: statt einer Liste ein Objekt. Die Namen der Gruppen
   // erscheinen im Formular als kleine Reiter über den Chips.
@@ -43,7 +50,6 @@ const BY_CATEGORY = {
       { name: "TotalEnergies", domain: "totalenergies.de", color: "#ED1C24" },
       { name: "JET", domain: "jet.de", color: "#FFD500", dark: true },
       { name: "HEM", domain: "hem.de", color: "#004B93" },
-      { name: "Star", domain: "star-tankstellen.de", color: "#E30613" }
     ],
     Laden: [
       { name: "Ionity", domain: "ionity.eu", color: "#00A0E1" },
@@ -51,17 +57,16 @@ const BY_CATEGORY = {
       { name: "Tesla", domain: "tesla.com", color: "#CC0000" },
       { name: "Allego", domain: "allego.eu", color: "#00A0AF" },
       { name: "EWE Go", domain: "ewe-go.de", color: "#E6007E" },
-      { name: "Aral pulse", domain: "aral.de", color: "#0067B1" },
       { name: "ZuHause", domain: "wallboxcenter.de", color: "#5b6469" }
 
     ],
     Reparieren: [
-      { name: "A.T.U", domain: "atu.de", color: "#E30613" },
-      { name: "Pitstop", domain: "pitstop.de", color: "#D5001C" },
       { name: "Euromaster", domain: "euromaster.de", color: "#0067B2" },
+      { name: "A.T.U", domain: "atu.de", color: "#E30613" },
       { name: "Vergölst", domain: "vergoelst.de", color: "#004F9F" },
+      { name: "Pitstop", domain: "pitstop.de", color: "#D5001C" },
       { name: "Bosch Service", domain: "bosch-service.com", color: "#005691" },
-      { name: "Premio", domain: "premio.de", color: "#E30613" }
+      { name: "TÜV", domain: "kurse.tuv.com", color: "#067fe3" }
     ]
   },
   "std-kleidung": [
@@ -75,6 +80,8 @@ const BY_CATEGORY = {
     { name: "Deichmann", domain: "deichmann.de", color: "#C8102E" },
     { name: "Zalando", domain: "en.zalando.de", color: "#f88e04" },
     { name: "TK-Max", domain: "tkmaxx.com", color: "#f80404" },
+    { name: "Douglas", domain: "douglas.com", color: "#89e6e6" },
+    { name: "UniQlo", domain: "uniqlo.com", color: "#d12525" },
   ]
 };
 
