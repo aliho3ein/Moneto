@@ -534,9 +534,15 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  /* Beim Tippen soll nichts markiert werden */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .legend__row {
+  width: 100%;
+  border: 0;
+  text-align: left;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1737,4 +1743,32 @@ select.input {
   .ws-item__icon {
     filter: brightness(1.12);
   }
+}
+
+/* Kopfzeile der Kategorie-Seite */
+.cat-page__title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 19px;
+}
+
+.cat-page__icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+}
+
+/* Datum als Anführer der Zeile auf der Kategorie-Seite */
+.item-row__date {
+  flex: none;
+  min-width: 62px;
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }

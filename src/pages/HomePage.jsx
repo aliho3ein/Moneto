@@ -187,13 +187,19 @@ export default function HomePage() {
         {slices.length > 0 ? (
           <ul className="legend">
             {slices.map((s) => (
-              <li key={s.categoryId} className="legend__row">
-                <span className="legend__icon" style={{ background: s.color }}>
-                  <Icon name={s.icon} size={16} color={dark ? ICON_ON_COLOR_DARK : "#fff"} />
-                </span>
-                <span className="legend__name">{s.name}</span>
-                <span className="legend__percent">{s.percent} %</span>
-                <span className="legend__sum"><Money cents={s.sum} /></span>
+              <li key={s.categoryId}>
+                <button
+                  type="button"
+                  className="legend__row"
+                  onClick={() => navigate(`/category/${s.categoryId}`)}
+                >
+                  <span className="legend__icon" style={{ background: s.color }}>
+                    <Icon name={s.icon} size={16} color={dark ? ICON_ON_COLOR_DARK : "#fff"} />
+                  </span>
+                  <span className="legend__name">{s.name}</span>
+                  <span className="legend__percent">{s.percent} %</span>
+                  <span className="legend__sum"><Money cents={s.sum} /></span>
+                </button>
               </li>
             ))}
           </ul>

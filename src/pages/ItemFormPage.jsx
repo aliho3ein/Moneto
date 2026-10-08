@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Minus, Plus, Store, Trash2, X } from "lucide-react";
 import {
@@ -38,11 +38,16 @@ function toDateInput(date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-// 12 Uhr statt Mitternacht: so kippt der Eintrag bei Zeitumstellungen
-// nicht in den Nachbartag und damit in den falschen Zeitraum.
-function fromDateInput(value) {
+// Gewähltes Datum plus Uhrzeit. Die Datumsauswahl liefert nur den Tag,
+// die Uhrzeit kommt beim neuen Eintrag von der Uhr und beim Bearbeiten aus
+// dem gespeicherten Eintrag – so bleibt die Reihenfolge innerhalb eines
+// Tages erhalten, auch wenn man das Datum später ändert.
+function fromDateInput(value, time = new Date()) {
   const [y, m, d] = value.split("-").map(Number);
-  return new Date(y, m - 1, d, 12, 0, 0);
+  return new Date(
+    y, m - 1, d,
+    time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds()
+  );
 }
 
 // Vorauswahl bei einem neuen Eintrag – zuerst über die feste ID der
@@ -70,6 +75,8 @@ export default function ItemFormPage() {
   const [showMore, setShowMore] = useState(false);
   // Domains, deren Favicon nicht geladen werden konnte -> dann das eigene Symbol
   const [brokenIcons, setBrokenIcons] = useState({});
+  // Uhrzeit des geladenen Eintrags, damit sie beim Speichern erhalten bleibt
+  const savedTime = useRef(null);
 
   const [categories, setCategories] = useState(null);
   const [loading, setLoading] = useState(isEdit);
@@ -102,7 +109,9 @@ export default function ItemFormPage() {
         setType(item.type);
         setAmountEuro(centToInput(item.amount));
         setCategoryId(item.categoryId);
-        const itemDate = toDateInput(item.date.toDate());
+        const stored = item.date.toDate();
+        savedTime.current = stored;
+        const itemDate = toDateInput(stored);
         setDate(itemDate);
         setNote(item.note || "");
         // Weicht das Datum von heute ab, gleich aufgeklappt zeigen.
@@ -214,7 +223,7 @@ export default function ItemFormPage() {
         amountEuro,
         type,
         categoryId,
-        date: fromDateInput(date),
+        date: fromDateInput(date, savedTime.current || new Date()),
         note: note.trim(),
         articles: cleanArticles
       };

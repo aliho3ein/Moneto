@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import ItemFormPage from "./pages/ItemFormPage";
 import ItemsPage from "./pages/ItemsPage";
 import CategoriesPage from "./pages/CategoriesPage";
+import CategoryItemsPage from "./pages/CategoryItemsPage";
 import SettingsPage from "./pages/SettingsPage";
 import JoinPage from "./pages/JoinPage";
 import { readJoinParams } from "./joinParams";
@@ -83,6 +84,7 @@ export default function App() {
             <Route path="/item/new" element={protectedPage(<ItemFormPage />)} />
             <Route path="/item/:id" element={protectedPage(<ItemFormPage />)} />
             <Route path="/categories" element={protectedPage(<CategoriesPage />)} />
+            <Route path="/category/:id" element={protectedPage(<CategoryItemsPage />)} />
             <Route path="/settings" element={protectedPage(<SettingsPage />)} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
