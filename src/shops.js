@@ -44,8 +44,8 @@ const BY_CATEGORY = {
       { name: "HEM", domain: "hem.de", color: "#004B93" },
     ],
     Laden: [
-      { name: "Ionity", domain: "ionity.eu", color: "#00A0E1" },
       { name: "EnBW", domain: "enbw.com", color: "#EE7402" },
+      { name: "Ionity", domain: "ionity.eu", color: "#00A0E1" },
       { name: "Tesla", domain: "tesla.com", color: "#CC0000" },
       { name: "Allego", domain: "allego.eu", color: "#00A0AF" },
       { name: "ZuHause", domain: "wallboxcenter.de", color: "#5b6469" }
@@ -67,7 +67,7 @@ const BY_CATEGORY = {
     { name: "C&A", domain: "c-and-a.com", color: "#1b0f50" },
     { name: "Newyourker", domain: "newyorker.de", color: "#C8102E" },
     { name: "Kik", domain: "kik.de", color: "#E94E1B" },
-    { name: "Deichmann", domain: "deichmann.de", color: "#C8102E" },
+    { name: "Deichmann", domain: "deichmann.de", color: "#196d0e" },
     { name: "Zalando", domain: "en.zalando.de", color: "#f88e04" },
     { name: "TK-Max", domain: "tkmaxx.com", color: "#f80404" },
   ]

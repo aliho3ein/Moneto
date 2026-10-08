@@ -30,6 +30,5 @@ Die UI ist als normale React-Anwendung aufgebaut. Für eine spätere Mobile-App 
 
 ## up to comming
 - offline modes
-- icons wenn man darauf clickt sollte farbig werden
 - Jahres übersicht im graph
 - App für android bauen in Appstore 
