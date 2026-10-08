@@ -326,10 +326,23 @@ export default function ItemFormPage() {
                 type="button"
                 key={cat.id}
                 className={cat.id === categoryId ? "cat-tile is-active" : "cat-tile"}
+                // Gewählt: Kachel in der Kategorie-Farbe, Symbol-Feld grau,
+                // Symbol selbst farbig. Die Farbe kommt aus der Datenbank,
+                // deshalb hier als Inline-Stil.
+                style={cat.id === categoryId
+                  ? { background: cat.color, borderColor: cat.color }
+                  : undefined}
                 onClick={() => { setCategoryId(cat.id); setNote(""); }}
               >
-                <span className="cat-tile__icon" style={{ background: cat.color }}>
-                  <Icon name={cat.icon} size={20} color="#fff" />
+                <span
+                  className="cat-tile__icon"
+                  style={{ background: cat.id === categoryId ? "#eef2f8" : cat.color }}
+                >
+                  <Icon
+                    name={cat.icon}
+                    size={20}
+                    color={cat.id === categoryId ? cat.color : "#fff"}
+                  />
                 </span>
                 <span className="cat-tile__name">{cat.name}</span>
               </button>
