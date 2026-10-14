@@ -30,6 +30,6 @@ Danach die von Vite angezeigte lokale URL öffnen.
 Die UI ist als normale React-Anwendung aufgebaut. Für eine spätere Mobile-App kannst du die gleichen Datenmodelle und Firebase-Services mit React Native/Expo wiederverwenden.
 
 ## up to comming
-- Jahres übersicht im graph
-- offline modes
-- App für android bauen in Appstore 
+
+Was noch ansteht, liegt als eigene Datei in [tasks/](tasks/) – eine Aufgabe
+pro Datei, Übersicht in [tasks/README.md](tasks/README.md). 

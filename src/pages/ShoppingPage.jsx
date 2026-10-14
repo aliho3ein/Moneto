@@ -11,6 +11,7 @@ import {
 import { useWorkspace } from "../context/WorkspaceContext";
 import TabBar from "../components/TabBar";
 import { titleCase } from "../format";
+import { suggestGroceries } from "../groceries";
 
 // Ab dieser Strecke nach links gilt ein Wischen als "löschen".
 const SWIPE_TRIGGER = 88;
@@ -243,6 +244,9 @@ export default function ShoppingPage() {
     open: "Sortierung umdrehen: Erledigte oben",
     done: "Sortierung umdrehen: Offene oben"
   }[sort] || "Erledigte nach unten sortieren";
+  // Passende Lebensmittel zum Getippten. Leer, solange nichts im Feld steht.
+  const suggestions = form ? suggestGroceries(form.title) : [];
+
   // Steht etwas hinter "Mehr"? Dann in der zugeklappten Zeile andeuten.
   const formExtras = form
     ? [
@@ -358,8 +362,27 @@ export default function ShoppingPage() {
                 maxLength={60}
                 autoFocus
                 required
+                autoComplete="off"
               />
             </label>
+
+            {/* Steht ausserhalb des <label>: darin wuerde ein Tipp nur das
+                Eingabefeld fokussieren statt den Vorschlag zu uebernehmen. */}
+            {suggestions.length > 0 && (
+              <ul className="suggest">
+                {suggestions.map((name) => (
+                  <li key={name}>
+                    <button
+                      type="button"
+                      className="suggest__chip"
+                      onClick={() => setForm((f) => ({ ...f, title: name }))}
+                    >
+                      {name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {/* Im Alltag reicht der Titel – der Rest bleibt eingeklappt. */}
             <button

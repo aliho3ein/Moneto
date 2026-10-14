@@ -1432,7 +1432,7 @@ select.input {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  min-height: 48px;
+  min-height: 38px;
   padding: 0 14px;
   border: 1px dashed var(--line);
   border-radius: var(--radius-md);
@@ -1955,6 +1955,33 @@ select.input {
   margin: 4px 0 0;
   text-align: center;
   font-size: 12px;
+}
+
+/* Vorschlaege unter dem Titel-Feld. Gleiche Sprache wie die Haendler-Chips
+   im Eintrags-Formular: tippen traegt den Text ein. */
+.suggest {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -6px 0 0;
+  padding: 0;
+}
+
+.suggest__chip {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1.5px dashed var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.suggest__chip:active {
+  border-style: solid;
+  background: var(--surface-soft);
 }
 
 /* Kopf des Formular-PopUps: Titel links, Schliessen-Kreuz rechts.
