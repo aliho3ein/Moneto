@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import PeriodHeader, { usePeriodSwipe } from "../components/PeriodHeader";
 import TabBar from "../components/TabBar";
 import { Icon } from "../icons";
+import { byNewest } from "../sortItems";
 import Money from "../components/Money";
 
 const UNKNOWN_CATEGORY = { name: "Ohne Kategorie", color: "#b9c7bf", icon: "basket" };
@@ -121,6 +122,8 @@ export default function ItemsPage() {
     }
 
     const result = [...map.values()];
+    // Innerhalb jeder Gruppe die neuesten nach oben
+    result.forEach((group) => group.items.sort(byNewest));
     // Kategorien nach Größe, Tage nach Datum (neueste zuerst)
     return groupBy === "category"
       ? result.sort((a, b) => Math.abs(b.sum) - Math.abs(a.sum))

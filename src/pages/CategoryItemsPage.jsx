@@ -10,6 +10,7 @@ import PeriodHeader, { usePeriodSwipe } from "../components/PeriodHeader";
 import TabBar from "../components/TabBar";
 import Money from "../components/Money";
 import { Icon } from "../icons";
+import { byNewest } from "../sortItems";
 
 const UNKNOWN_CATEGORY = { name: "Ohne Kategorie", color: "#b9c7bf", icon: "basket" };
 const dayFormat = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "short" });
@@ -53,7 +54,7 @@ export default function CategoryItemsPage() {
   const items = useMemo(
     () => (data?.items || [])
       .filter((item) => item.categoryId === id)
-      .sort((a, b) => b.date.toMillis() - a.date.toMillis()),
+      .sort(byNewest),
     [data, id]
   );
 
