@@ -1772,3 +1772,247 @@ select.input {
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------------------------------------------------------------
+   Einkaufsliste
+----------------------------------------------------------------*/
+
+/* Symbol links in der unteren Leiste. Die Leiste ist immer dunkel,
+   darum hier feste helle Farben statt der Text-Tokens. */
+.tabbar__side {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+}
+
+.tabbar__icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.tabbar__icon.is-active {
+  color: var(--primary);
+}
+
+.tabbar__icon:active {
+  transform: scale(0.92);
+}
+
+.shopping-screen {
+  gap: 12px;
+  padding-bottom: calc(112px + env(safe-area-inset-bottom));
+}
+
+.shopping-screen .page-head {
+  align-items: center;
+  margin-bottom: 0;
+}
+
+/* Leere Liste: der Papierkorb oben rechts hat nichts zu tun. */
+.icon-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Sortier-Knopf rechts in der Kopfzeile. Die negativen Abstaende halten
+   die Zeile so flach wie vorher – .total-row richtet an der Grundlinie aus,
+   darum hier zusaetzlich align-self. */
+.sort-btn {
+  flex: none;
+  align-self: center;
+  width: 40px;
+  height: 40px;
+  margin: -8px -6px -8px 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+}
+
+.sort-btn.is-active {
+  color: var(--primary);
+}
+
+.sort-btn:active {
+  transform: scale(0.92);
+}
+
+/* Der rote Hintergrund liegt fest, die Zeile darüber wandert beim Wischen. */
+.swipe {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.swipe__bg {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 22px;
+  border-radius: var(--radius-md);
+  background: var(--expense);
+  color: #fff;
+}
+
+.swipe.is-sliding .swipe__bg {
+  display: flex;
+}
+
+.swipe__fg {
+  position: relative;
+  transition: transform 160ms ease-out;
+}
+
+.shop-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 66px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+/* Abhak-Symbol links: streicht den Titel durch. */
+.shop-row__check {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
+.shop-row.is-done .shop-row__check {
+  background: var(--income);
+  color: #fff;
+}
+
+.shop-row__check:active {
+  transform: scale(0.92);
+}
+
+.shop-row__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.shop-row__title {
+  font-size: 16px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Durchgestrichen = liegt schon im Einkaufswagen. */
+.shop-row.is-done .shop-row__title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.shop-row__meta {
+  color: var(--muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shop-row__qty {
+  flex: none;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.shop-row.is-done .shop-row__qty {
+  color: var(--muted);
+}
+
+.shop-hint {
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* Kopf des Formular-PopUps: Titel links, Schliessen-Kreuz rechts.
+   Ein eigener Abbrechen-Knopf entfaellt dadurch. */
+.sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -6px -6px 2px 0;
+}
+
+.sheet-head__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  text-align: left;
+}
+
+/* Mengen-Eingabe im Formular: minus, Zahl, plus */
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty__btn {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--input-bg);
+}
+
+.qty__btn:active {
+  transform: scale(0.95);
+}
+
+.qty__field {
+  flex: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Haken in der Rückfrage vor dem Löschen */
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 2px;
+  font-size: 14px;
+}
+
+.check input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  accent-color: var(--accent);
+}

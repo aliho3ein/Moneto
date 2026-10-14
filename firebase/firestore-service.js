@@ -105,7 +105,7 @@ export async function renameWorkspace(wsId, name) {
 // get() auf das Workspace-Dokument - ist das weg, kommt niemand mehr an die
 // Reste heran. Nur der Besitzer darf löschen (Rules).
 export async function deleteWorkspace(wsId) {
-  for (const sub of ["items", "categories"]) {
+  for (const sub of ["items", "categories", "shopping"]) {
     // In Häppchen löschen, ein Batch fasst höchstens 500 Schreibvorgänge.
     for (;;) {
       const snap = await getDocs(query(collection(db, "workspaces", wsId, sub), limit(300)));
@@ -318,4 +318,66 @@ export function listenPeriod(wsId, start, end, callback, onError) {
       percentages
     });
   }, onError);
+}
+// =====================================================================
+// 6. EINKAUFSLISTE – gemeinsame Liste, beide Mitglieder dürfen ändern
+// =====================================================================
+// Eigene Collection statt eines Feldes am Workspace: so sieht jeder sofort,
+// was der andere abhakt, ohne dass sich zwei Schreibvorgänge überholen.
+const shoppingCol = (wsId) => collection(db, "workspaces", wsId, "shopping");
+
+// Menge immer als ganze Zahl zwischen 1 und 999 – die Rules lehnen alles
+// andere ab, und ein leeres Feld soll nicht zum Fehler führen.
+function cleanQty(value) {
+  const n = Math.round(Number(String(value).replace(",", ".")));
+  if (!Number.isFinite(n)) return 1;
+  return Math.min(999, Math.max(1, n));
+}
+
+// Live-Liste. Sortiert wird hier und nicht per orderBy: createdAt kommt vom
+// Server und ist direkt nach dem Anlegen noch leer – mit orderBy würde ein
+// neuer Eintrag erst nach oben und dann an seinen Platz springen.
+export function listenShoppingList(wsId, callback, onError) {
+  return onSnapshot(shoppingCol(wsId), (snap) => {
+    const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    // Noch nicht bestätigte Einträge ans Ende, sonst nach Erfassungszeit.
+    const stamp = (it) => it.createdAt?.seconds ?? Number.MAX_SAFE_INTEGER;
+    list.sort((a, b) => stamp(a) - stamp(b));
+    callback(list);
+  }, onError);
+}
+
+export async function addShoppingItem(wsId, { title, note, qty }) {
+  const data = {
+    title: title.trim().slice(0, 60),
+    qty: cleanQty(qty),
+    done: false,
+    createdBy: auth.currentUser.uid,
+    createdAt: serverTimestamp()
+  };
+  const text = (note || "").trim();
+  if (text) data.note = text.slice(0, 200);
+  return addDoc(shoppingCol(wsId), data);
+}
+
+// Durchgestrichen = liegt im Einkaufswagen.
+export async function setShoppingDone(wsId, itemId, done) {
+  await updateDoc(doc(shoppingCol(wsId), itemId), { done: Boolean(done) });
+}
+
+export async function deleteShoppingItem(wsId, itemId) {
+  await deleteDoc(doc(shoppingCol(wsId), itemId));
+}
+
+// Ganze Liste leeren. Wie beim Haushalt in Häppchen, ein Batch fasst
+// höchstens 500 Schreibvorgänge.
+export async function clearShoppingList(wsId) {
+  for (;;) {
+    const snap = await getDocs(query(shoppingCol(wsId), limit(300)));
+    if (snap.empty) break;
+    const batch = writeBatch(db);
+    snap.docs.forEach((d) => batch.delete(d.ref));
+    await batch.commit();
+    if (snap.size < 300) break;
+  }
 }

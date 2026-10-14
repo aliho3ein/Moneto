@@ -103,6 +103,27 @@ service cloud.firestore {
         allow delete: if wsMember();
       }
 
+      // ---------- Einkaufsliste ----------
+      // Beide Mitglieder dürfen anlegen, abhaken, ändern und löschen.
+      // Nur createdBy bleibt beim ursprünglichen Ersteller stehen.
+      match /shopping/{shopId} {
+        function validShoppingItem() {
+          let d = request.resource.data;
+          return d.keys().hasAll(['title', 'qty', 'done', 'createdBy'])
+            && d.keys().hasOnly(['title', 'note', 'qty', 'done', 'createdBy', 'createdAt'])
+            && d.title is string && d.title.size() > 0 && d.title.size() <= 60
+            && (!('note' in d) || (d.note is string && d.note.size() <= 200))
+            && d.qty is int && d.qty > 0 && d.qty <= 999
+            && d.done is bool;
+        }
+        allow read: if wsMember();
+        allow create: if wsMember() && validShoppingItem()
+          && request.resource.data.createdBy == request.auth.uid;
+        allow update: if wsMember() && validShoppingItem()
+          && request.resource.data.createdBy == resource.data.createdBy;  // Ersteller bleibt
+        allow delete: if wsMember();
+      }
+
       // ---------- Daueraufträge (optional) ----------
       match /recurring/{recId} {
         allow read, write: if wsMember();
