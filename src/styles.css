@@ -2043,3 +2043,29 @@ select.input {
   flex: none;
   accent-color: var(--accent);
 }
+/* Logo oben links als Knopf (zeigt die Version) */
+.home__logo-btn {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: grid;
+  place-items: center;
+}
+
+.version-box {
+  align-items: center;
+  text-align: center;
+}
+
+.version-box__mark {
+  width: 48px;
+  height: 48px;
+}
+
+.version-box__number {
+  margin: -4px 0 6px;
+  color: var(--muted);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}

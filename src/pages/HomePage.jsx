@@ -6,11 +6,12 @@ import {
 } from "../../firebase/firestore-service.js";
 import { Settings } from "lucide-react";
 import { useWorkspace } from "../context/WorkspaceContext";
-import PeriodHeader, { usePeriodSwipe } from "../components/PeriodHeader";
+import PeriodHeader from "../components/PeriodHeader";
 import TabBar from "../components/TabBar";
 import { Icon } from "../icons";
 import Money from "../components/Money";
 import { useDarkMode, lighten } from "../theme";
+import { APP_VERSION } from "../version";
 import iconMark from "../assets/logo/moneto-icon.svg";
 
 const RING_EMPTY = "#e2efe7";
@@ -23,13 +24,12 @@ const UNKNOWN_CATEGORY = { name: "Ohne Kategorie", color: "#b9c7bf", icon: "bask
 export default function HomePage() {
   const navigate = useNavigate();
   const { activeId, workspace, period } = useWorkspace();
-  // Tipp auf den Donut öffnet die Einträge, Wischen bleibt der Zeitraumwechsel.
-  const swipe = usePeriodSwipe(() => navigate("/items"));
   const dark = useDarkMode();
 
   const [categories, setCategories] = useState(null);
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
+  const [showVersion, setShowVersion] = useState(false);
 
   // Live-Kategorien; die Rückgabe beendet den Listener beim Verlassen.
   useEffect(() => {
@@ -125,7 +125,14 @@ export default function HomePage() {
   return (
     <div className="screen home">
       <div className="home__top">
-        <img src={iconMark} alt="Moneto" className="home__mark" />
+        <button
+          type="button"
+          className="home__logo-btn"
+          onClick={() => setShowVersion(true)}
+          aria-label={`Moneto ${APP_VERSION}`}
+        >
+          <img src={iconMark} alt="Moneto" className="home__mark" />
+        </button>
         <span className="home__ws">{workspace?.name}</span>
         <button
           type="button"
@@ -150,7 +157,7 @@ export default function HomePage() {
         tabIndex={0}
         aria-label="Einträge anzeigen"
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate("/items"); }}
-        {...swipe}
+        onClick={() => navigate("/items")}
       >
         <ResponsiveContainer width="100%" height={280}>
           <PieChart>
@@ -209,6 +216,19 @@ export default function HomePage() {
       </div>
 
       <TabBar />
+
+      {showVersion && (
+        <div className="confirm" role="dialog" aria-modal="true" onClick={() => setShowVersion(false)}>
+          <div className="confirm__box version-box" onClick={(e) => e.stopPropagation()}>
+            <img src={iconMark} alt="" className="version-box__mark" />
+            <p className="confirm__text">Moneto</p>
+            <p className="version-box__number">{APP_VERSION}</p>
+            <button type="button" className="btn btn--ghost" onClick={() => setShowVersion(false)}>
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

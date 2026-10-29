@@ -44,6 +44,21 @@ hinterher nicht mehr ansieht. Sie folgen der Nummerierung oben nicht.
 | Branch | Inhalt |
 | --- | --- |
 | [EA001](EA001.md) | Vorschläge im Titel-Feld der Einkaufsliste, Aufgaben-Ordner |
+| [EA002](EA002.md) | Zeitraum nur noch über die Pfeile, Versionsanzeige über das Logo |
+
+## Version erhöhen
+
+Die Nummer, die das Logo auf der Übersicht zeigt, kommt beim Bauen aus der
+`package.json`. Ein Befehl setzt Nummer, Commit und Tag gemeinsam:
+
+```bash
+npm version 1.1.0        # package.json auf 1.1.0, Commit, Tag v1.1.0
+git push --follow-tags   # schiebt Commit und Tag, Netlify baut
+```
+
+Die Nummer von Hand zu ändern ist nicht nötig – und ließe sie vom Tag
+auseinanderlaufen. Für ein GitHub-Release danach einfach den neuen Tag
+auswählen.
 
 ## Übersicht
 

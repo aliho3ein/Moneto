@@ -6,7 +6,7 @@ import {
 } from "../../firebase/firestore-service.js";
 import { useWorkspace } from "../context/WorkspaceContext";
 import { useAuth } from "../context/AuthContext";
-import PeriodHeader, { usePeriodSwipe } from "../components/PeriodHeader";
+import PeriodHeader from "../components/PeriodHeader";
 import TabBar from "../components/TabBar";
 import Money from "../components/Money";
 import { Icon } from "../icons";
@@ -21,7 +21,6 @@ export default function CategoryItemsPage() {
   const { id } = useParams();
   const { user } = useAuth();
   const { activeId, period } = useWorkspace();
-  const swipe = usePeriodSwipe();
 
   const [categories, setCategories] = useState(null);
   const [data, setData] = useState(null);
@@ -89,7 +88,7 @@ export default function CategoryItemsPage() {
   }
 
   return (
-    <div className="screen items-screen" {...swipe}>
+    <div className="screen items-screen">
       <header className="page-head">
         <button type="button" className="icon-btn" onClick={() => navigate(-1)} aria-label="Zurück">
           <ArrowLeft size={20} />
