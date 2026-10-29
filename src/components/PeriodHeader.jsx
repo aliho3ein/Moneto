@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useWorkspace } from "../context/WorkspaceContext";
 
@@ -11,43 +11,12 @@ export function periodLabel({ start, end }) {
   return `${fmt(start, "long")} – ${fmt(last, "short")}${showYear ? ` ${last.getFullYear()}` : ""}`;
 }
 
-// Wischen nach links = nächster Zeitraum, nach rechts = voriger.
-// `onTap` wird bei einem einfachen Tipp/Klick ausgelöst – nach einem
-// Wischen aber nicht, sonst löste jede Wischgeste zusätzlich den Klick aus.
-export function usePeriodSwipe(onTap) {
-  const { setOffset } = useWorkspace();
-  const startX = useRef(null);
-  const swiped = useRef(false);
-
-  return {
-    onTouchStart(e) {
-      startX.current = e.changedTouches[0].clientX;
-      swiped.current = false;
-    },
-    onTouchEnd(e) {
-      if (startX.current === null) return;
-      const dx = e.changedTouches[0].clientX - startX.current;
-      startX.current = null;
-      if (Math.abs(dx) < 45) return;
-      swiped.current = true;
-      setOffset((o) => o + (dx < 0 ? 1 : -1));
-    },
-    onClick(e) {
-      if (swiped.current) {
-        swiped.current = false;
-        return;
-      }
-      if (onTap) onTap(e);
-    }
-  };
-}
-
 export default function PeriodHeader() {
   const { period, offset, setOffset } = useWorkspace();
-  const swipe = usePeriodSwipe();
 
+  // Der Zeitraum wechselt nur über die beiden Pfeile, nicht durch Wischen.
   return (
-    <header className="period" {...swipe}>
+    <header className="period">
       <button
         type="button"
         className="period__nav"

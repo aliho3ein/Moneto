@@ -1,8 +1,17 @@
+import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
+// Die Versionsnummer kommt aus der package.json. Mit `npm version 1.1.0`
+// entstehen Nummer und Git-Tag in einem Schritt, beide können dann nicht
+// mehr auseinanderlaufen.
+const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(`v${pkg.version}`)
+  },
   plugins: [
     react(),
     VitePWA({
